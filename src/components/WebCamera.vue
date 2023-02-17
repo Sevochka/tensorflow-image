@@ -1,5 +1,12 @@
 <template>
   <section class="web-camera">
+    <button
+      class="web-camera__start-btn"
+      @click="loadFunctionality"
+    >
+      Начать (если не начинается автоматически)
+    </button>
+
     <div class="web-camera__video-container">
       <div
         v-if="!predictions"
