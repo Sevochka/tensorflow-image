@@ -26,7 +26,6 @@
       </div>
 
       <video
-        id="webcam"
         ref="videoEl"
         autoplay
         muted
@@ -54,12 +53,15 @@ const loadFunctionality = async () => {
   });
 };
 
-onMounted(async () => {
-  loadFunctionality();
-});
+onMounted(loadFunctionality);
 
 onBeforeUnmount(() => {
   removeListener();
+
+  // stop vide tracks to prevent memory leaks
+  videoEl.value.srcObject.getTracks().forEach((track) => {
+    track.stop();
+  });
 });
 </script>
 
