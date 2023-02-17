@@ -1,48 +1,46 @@
 <template>
   <div class="app">
-    <input
-      type="file"
-      @change="handleFileAdd"
-    >
-
-    <div class="app__content">
-      <img
-        ref="imageEl"
-        :src="image"
-        alt="your image"
+    <div class="app__controls">
+      <button
+        v-for="tab in TABS"
+        :key="tab.name"
+        class="app__control"
+        :class="{ 'app__control--active': tab.name === currentTab.name }"
+        @click="handleTabClick(tab)"
       >
-
-      <div class="app__predictions">
-        <h3>Predictions</h3>
-        <p
-          v-for="prediction in predictions"
-          :key="prediction.className"
-        >
-          {{ prediction }}
-        </p>
-      </div>
+        {{ tab.name }}
+      </button>
     </div>
+
+    <component
+      :is="currentTab.component"
+      class="app__tab"
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import classify from '@/utils/classify';
-import cat from '@/assets/cat.jpg';
+import Image from '@/components/Image.vue';
+import WebCamera from '@/components/WebCamera.vue';
+import { markRaw, ref } from 'vue';
 
-const image = ref(cat);
-const predictions = ref(null);
-const handleFileAdd = async (e) => {
-  const [imagFile] = e.target.files;
+const TABS = [
+  {
+    name: 'Image',
+    component: markRaw(Image),
+  },
+  {
+    name: 'Webcam',
+    component: markRaw(WebCamera),
+  },
+];
 
-  image.value = URL.createObjectURL(imagFile);
+const currentTab = ref(TABS[0]);
 
-  predictions.value = await classify(image.value);
+const handleTabClick = (tab) => {
+  currentTab.value = tab;
 };
 
-onMounted(async () => {
-  predictions.value = await classify(image.value);
-});
 </script>
 
 <style lang="scss">
@@ -53,30 +51,40 @@ onMounted(async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  padding: 2rem;
 
-  &__content {
+  &__controls {
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
+    gap: 1rem;
 
-    h3 {
-      font-size: 20px;
-      font-weight: 800;
+    margin-bottom: 2rem;
+  }
+
+  &__control {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid red;
+    background-color: darkblue;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    &--active {
+      background-color: white;
+      color: darkblue;
+    }
+
+    &:hover {
+      transform: scale(1.05);
+      opacity: 0.8;
     }
   }
 
-  &__predictions {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  &__tab {
+    width: 100%;
   }
 
-  img {
-    width: 400px;
-    height: 400px;
-    object-fit: contain;
-  }
 }
 </style>
